@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRFM Training — Performance Console</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;900&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:ital,wght@1,400;1,500&display=swap');
+  :root{
+    --black:#111111;
+    --cream:#F9F6F2;
+    --white:#FFFFFF;
+    --orange:#FF8210;
+    --gray-on-black: rgba(249,246,242,0.55);
+    --gray-on-cream: rgba(17,17,17,0.55);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Inter',sans-serif; background:var(--black); color:var(--white); overflow-x:hidden;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit;}
+
+  /* ===== shared ===== */
+  .pad{padding:88px 56px;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.05em; color:var(--orange);}
+  .reveal{opacity:0; transform:translateY(16px); transition:opacity .6s cubic-bezier(.2,.8,.2,1), transform .6s cubic-bezier(.2,.8,.2,1);}
+  .reveal.in-view{opacity:1; transform:translateY(0);}
+  .reveal-group > *{transition-delay:calc(var(--i, 0) * 0.08s);}
+  .h2{font-weight:900; font-size:clamp(26px,3.4vw,42px); line-height:1.12; letter-spacing:-0.01em; text-transform:uppercase;}
+  .body-text{font-size:15px; line-height:1.7;}
+  .grid-bg{
+    background-image:
+      repeating-linear-gradient(0deg, rgba(255,130,16,0.045) 0px, rgba(255,130,16,0.045) 1px, transparent 1px, transparent 64px),
+      repeating-linear-gradient(90deg, rgba(255,130,16,0.045) 0px, rgba(255,130,16,0.045) 1px, transparent 1px, transparent 64px);
+  }
+  .bracket-btn{background:var(--orange); color:var(--black); border:none; font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:13px; letter-spacing:0.03em; padding:15px 26px; cursor:pointer; transition:filter .15s;}
+  .bracket-btn:hover{filter:brightness(1.08);}
+  .bracket-btn:active{transform:scale(0.96);}
+  .ghost-btn{background:transparent; color:var(--black); border:1px solid rgba(17,17,17,0.3); font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:13px; padding:14px 25px; cursor:pointer;}
+  .ghost-btn:hover{background:rgba(17,17,17,0.05);}
+  .input{padding:13px 16px; border:none; font-family:'IBM Plex Mono',monospace; font-size:13px; min-width:200px; outline:none;}
+  .tag-pill{display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.04em; padding:5px 10px; border:1px solid currentColor;}
+
+  /* ===== console bar ===== */
+  html{scroll-behavior:smooth;}
+  .console-bar{position:sticky; top:0; z-index:50; display:flex; align-items:center; justify-content:space-between; padding:16px 40px; background:var(--black); border-bottom:1px solid rgba(255,130,16,0.25);}
+  .wordmark{font-weight:900; font-size:17px; letter-spacing:-0.02em;}
+  .nav-links{display:flex; align-items:center; gap:32px; font-size:12px; letter-spacing:0.03em; color:var(--gray-on-black);}
+  .nav-links a{text-decoration:none; color:inherit; transition:color .15s;}
+  .nav-links a:hover{color:var(--orange);}
+  .engage{background:transparent; border:1px solid var(--orange); color:var(--orange); font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.04em; padding:9px 16px; cursor:pointer; transition:background 0.15s,color 0.15s;}
+  .engage:hover{background:var(--orange); color:var(--black);}
+  .engage:active{transform:scale(0.96);}
+
+  /* ===== hero ===== */
+  .hero{position:relative; min-height:600px; display:grid; grid-template-columns:1.1fr 0.9fr; overflow:hidden; background:var(--black);}
+  .hero-copy{padding:80px 56px; display:flex; flex-direction:column; justify-content:center; z-index:2;}
+  .tag{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--orange); letter-spacing:0.05em; margin-bottom:24px; opacity:0; animation:fadein 0.5s ease-out 0.1s forwards;}
+  @keyframes fadein{ to{opacity:1;} }
+  .headline{font-weight:900; font-size:clamp(32px,4.6vw,52px); line-height:1.08; letter-spacing:-0.01em; text-transform:uppercase;}
+  .strike{position:relative; display:inline-block;}
+  .strike::after{content:''; position:absolute; left:0; top:50%; width:0; height:3px; background:var(--orange); animation:strikeline 0.5s ease-out 0.5s forwards;}
+  @keyframes strikeline{ to{width:100%;} }
+  .pulse-word{color:var(--orange); display:inline-block; animation:pulseglow 1.1s ease-out 1.05s 1;}
+  @keyframes pulseglow{ 0%{text-shadow:0 0 0 rgba(255,130,16,0);} 40%{text-shadow:0 0 18px rgba(255,130,16,0.7);} 100%{text-shadow:0 0 0 rgba(255,130,16,0);} }
+  .headline-line{display:block; opacity:0; animation:fadein 0.5s ease-out 0.25s forwards;}
+  .headline-line.two{animation-delay:0.55s;}
+  .hero-sub{color:var(--gray-on-black); font-size:15px; line-height:1.65; max-width:420px; margin-top:26px; opacity:0; animation:fadein 0.5s ease-out 1.3s forwards;}
+  .cta-row{margin-top:36px; opacity:0; animation:fadein 0.5s ease-out 1.5s forwards;}
+  .hero .bracket-btn{padding:15px 26px; animation:ring 3s ease-in-out 2s infinite;}
+  @keyframes ring{ 0%,100%{box-shadow:0 0 0 0 rgba(255,130,16,0);} 50%{box-shadow:0 0 0 8px rgba(255,130,16,0.18);} }
+  .hero-price{margin-top:18px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--gray-on-black); letter-spacing:0.02em;}
+  .hero-price .price-orange{color:var(--orange); font-weight:500;}
+  .hero-price a{color:var(--white); text-decoration:underline; text-underline-offset:3px; text-decoration-color:rgba(255,255,255,0.3); transition:text-decoration-color .15s, color .15s;}
+  .hero-price a:hover{color:var(--orange); text-decoration-color:var(--orange);}
+  .hero-visual{position:relative;
+    background-image:linear-gradient(160deg, rgba(255,130,16,0.34), rgba(17,17,17,0.8)), url('https://images.unsplash.com/photo-1706029831385-1c89922848eb?auto=format&fit=crop&w=1400&q=70');
+    background-size:cover; background-position:center;
+    filter:grayscale(0.35) contrast(1.1);
+    clip-path:polygon(18% 0, 100% 0, 100% 100%, 0 100%);
+  }
+  .photo-label{position:absolute; top:16px; right:16px; font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.04em; color:rgba(249,246,242,0.85); background:rgba(17,17,17,0.55); padding:4px 9px;}
+  .photo-label.on-light{color:rgba(17,17,17,0.8); background:rgba(249,246,242,0.7);}
+  .reticle{position:absolute; width:18px; height:18px; border-color:var(--orange); border-style:solid; border-width:0;}
+  .reticle.tl{top:24px; left:24px; border-top-width:2px; border-left-width:2px;}
+  .reticle.br{bottom:24px; right:24px; border-bottom-width:2px; border-right-width:2px;}
+  .visual-tag{position:absolute; left:24px; bottom:24px; font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--orange); letter-spacing:0.06em;}
+
+  /* ===== stat row (reused component) ===== */
+  .stat-row{display:flex; border-top:1px solid rgba(255,130,16,0.25); border-bottom:1px solid rgba(255,130,16,0.25);}
+  .stat-row.on-cream{border-color:rgba(17,17,17,0.15);}
+  .stat{flex:1; padding:28px 40px; text-align:center; border-right:1px solid rgba(255,130,16,0.15);}
+  .stat-row.on-cream .stat{border-right-color:rgba(17,17,17,0.1);}
+  .stat:last-child{border-right:none;}
+  .stat .num{font-family:'IBM Plex Mono',monospace; font-size:32px; font-weight:500; color:var(--orange);}
+  .stat .lbl{font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--gray-on-black); margin-top:6px;}
+  .stat-row.on-cream .lbl{color:var(--gray-on-cream);}
+
+  /* ===== orange strips ===== */
+  .strip{background:var(--orange); color:var(--black); padding:52px 56px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:24px;}
+  .strip h2{font-weight:900; font-size:clamp(21px,2.8vw,30px); text-transform:uppercase;}
+  .strip-form{display:flex; gap:10px; flex-wrap:wrap;}
+  .strip .input{background:var(--white);}
+  .btn-black{background:var(--black); color:var(--white); border:none; font-weight:500; font-family:'IBM Plex Mono',monospace; font-size:12px; padding:13px 22px; cursor:pointer; white-space:nowrap;}
+  .btn-black:hover{filter:brightness(1.3);}
+
+  /* ===== philosophy ===== */
+  .on-cream{background:var(--cream); color:var(--black);}
+  .philosophy-body{max-width:640px; margin-top:22px; color:var(--gray-on-cream);}
+  .pillars{display:grid; grid-template-columns:repeat(3,1fr); gap:28px; margin-top:48px;}
+  .pillar{border-left:3px solid var(--orange); padding-left:20px;}
+  .pillar .tag-pill{color:var(--orange); border-color:var(--orange); margin-bottom:12px;}
+  .pillar p{color:var(--gray-on-cream); font-size:14px; line-height:1.6; margin-top:10px;}
+
+  /* ===== how it works ===== */
+  .steps{display:grid; grid-template-columns:repeat(5,1fr); gap:24px; margin-top:56px;}
+  .step .num{font-family:'IBM Plex Mono',monospace; font-size:40px; font-weight:500; color:var(--orange); line-height:1;}
+  .step .lbl{margin-top:14px; font-size:14px; font-weight:500;}
+
+  /* ===== programme table ===== */
+  .prog-row{display:grid; grid-template-columns:50px 2fr 1fr 1fr auto; align-items:center; gap:24px; padding:26px 0; border-bottom:1px solid rgba(17,17,17,0.12);}
+  .prog-row.dark{background:var(--black); color:var(--white); padding:26px 24px; border-bottom:1px solid rgba(255,130,16,0.2); border-radius:2px;}
+  .prog-row .num{font-family:'IBM Plex Mono',monospace; color:var(--orange); font-size:14px;}
+  .prog-row .name{font-weight:900; font-size:18px; text-transform:uppercase;}
+  .prog-row .detail{font-size:13px; color:var(--gray-on-cream);}
+  .prog-row.dark .detail{color:var(--gray-on-black);}
+  .prog-row .price{font-family:'IBM Plex Mono',monospace; font-size:16px;}
+  .progress-path{display:flex; align-items:center; gap:10px; margin-top:40px; flex-wrap:wrap; font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--gray-on-cream); letter-spacing:0.04em;}
+  .progress-path span.node{color:var(--black); font-weight:500;}
+
+  /* ===== ben section ===== */
+  .ben-grid{display:grid; grid-template-columns:0.8fr 1.2fr; gap:56px; align-items:center;}
+  .ben-photo{position:relative; aspect-ratio:3/4;
+    background-image:linear-gradient(160deg, rgba(255,130,16,0.3), rgba(17,17,17,0.55)), url('https://images.unsplash.com/photo-1646656130703-8f95eed6a79b?auto=format&fit=crop&w=1200&q=70');
+    background-size:cover; background-position:center;
+    filter:grayscale(0.3) contrast(1.08);
+    clip-path:polygon(0 0, 100% 0, 100% 88%, 88% 100%, 0 100%);
+  }
+  .ben-photo .reticle{border-color:var(--orange);}
+  .ben-headline{font-weight:900; font-size:clamp(26px,3.2vw,40px); text-transform:uppercase; line-height:1.1; margin-top:16px;}
+  .ben-bio{margin-top:20px; max-width:520px; color:var(--gray-on-cream); font-size:15px; line-height:1.7;}
+
+  /* ===== testimonials ===== */
+  .quotes{display:grid; grid-template-columns:repeat(3,1fr); gap:40px; margin-top:48px;}
+  .quote{}
+  .quote .stars{color:var(--orange); font-family:'IBM Plex Mono',monospace; font-size:13px; letter-spacing:2px;}
+  .quote blockquote{font-family:'Fraunces',serif; font-style:italic; font-size:19px; line-height:1.5; margin-top:16px;}
+  .quote .name{margin-top:18px; font-weight:500; font-size:14px;}
+  .quote .journey{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--gray-on-black); margin-top:4px; letter-spacing:0.03em;}
+
+  /* ===== pull quote ===== */
+  .pullquote{text-align:center; position:relative;}
+  .qmark{font-family:'Fraunces',serif; font-size:140px; color:rgba(17,17,17,0.08); line-height:1; position:absolute; top:-40px; left:50%; transform:translateX(-50%);}
+  .pullquote blockquote{font-family:'Fraunces',serif; font-style:italic; font-size:clamp(20px,2.6vw,28px); line-height:1.5; max-width:760px; margin:0 auto; position:relative;}
+  .pullquote .attr{margin-top:28px; font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.05em; color:var(--gray-on-cream);}
+
+  /* ===== final cta ===== */
+  .final-headline{font-weight:900; font-size:clamp(30px,4.2vw,50px); text-transform:uppercase; line-height:1.08; margin-top:18px;}
+  .final-sub{color:var(--gray-on-black); margin-top:18px; max-width:480px; font-size:15px;}
+  .final-form{display:flex; gap:10px; margin-top:32px; flex-wrap:wrap;}
+  .fine-print{margin-top:24px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--gray-on-black); max-width:480px;}
+
+  footer{padding:32px 56px; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--gray-on-black); border-top:1px solid rgba(255,130,16,0.15);}
+
+  @media (max-width: 900px){
+    .pad{padding:64px 24px;}
+    .console-bar{padding:14px 22px;}
+    .hero{grid-template-columns:1fr;}
+    .hero-visual{min-height:220px; clip-path:none;}
+    .hero-copy{padding:48px 24px;}
+    .stat-row{flex-wrap:wrap;}
+    .stat{flex:1 1 33%;}
+    .strip{padding:40px 24px;}
+    .pillars{grid-template-columns:1fr; gap:32px;}
+    .steps{grid-template-columns:repeat(2,1fr); gap:32px;}
+    .prog-row{grid-template-columns:1fr; gap:8px; padding:22px;}
+    .prog-row .price{font-size:20px;}
+    .ben-grid{grid-template-columns:1fr; gap:32px;}
+    .ben-photo{clip-path:none;}
+    .quotes{grid-template-columns:1fr; gap:40px;}
+    .final-form{flex-direction:column;}
+    .final-form .input, .final-form .bracket-btn{width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<!-- 01 CONSOLE BAR -->
+<div class="console-bar">
+  <div class="wordmark">PRFM</div>
+  <nav class="nav-links mono">
+    <a href="#programmes">Programmes</a>
+    <a href="#blog">Blog</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <button class="engage">[ ENGAGE ]</button>
+</div>
+
+<!-- 02 HERO -->
+<section class="hero grid-bg">
+  <div class="hero-copy">
+    <div class="tag">// SESSION LOG — BUILDING YOUR PROGRAMME</div>
+    <h1 class="headline">
+      <span class="headline-line one"><span class="strike">Stop exercising.</span></span>
+      <span class="headline-line two">Start <span class="pulse-word">training.</span></span>
+    </h1>
+    <p class="hero-sub">Performance over aesthetics. A real coach builds your plan — no app, no AI, no template.</p>
+    <div class="cta-row">
+      <button class="bracket-btn">[ ENGAGE: JOIN WAITLIST ]</button>
+      <p class="hero-price">From <span class="price-orange">$89</span> one-time — no subscription. <a href="#programmes">See programmes →</a></p>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="reticle tl"></div>
+    <div class="reticle br"></div>
+    <div class="visual-tag">COACH BEN — LOCKED IN</div>
+    <div class="photo-label">[ PLACEHOLDER — LICENSE BEFORE LAUNCH ]</div>
+  </div>
+</section>
+
+<!-- 03 ORANGE WAITLIST STRIP -->
+<section class="strip">
+  <h2>Achieve your goal.</h2>
+  <div class="strip-form">
+    <input class="input" type="email" placeholder="you@email.com">
+    <button class="btn-black">[ SEND GUIDE ]</button>
+  </div>
+</section>
+
+<!-- 04 PHILOSOPHY -->
+<section class="on-cream pad">
+  <div class="eyebrow reveal">// THE PRFM PHILOSOPHY</div>
+  <h2 class="h2 reveal" style="margin-top:16px; max-width:780px;">You have a performance in mind. These plans are how you get there.</h2>
+  <p class="body-text philosophy-body reveal">Athletes don't exercise. They train — toward something specific. PRFM works the same way: the goal comes first, the programme is how we reach it. Every session, every check-in, every adjustment exists to get you to your performance. Aesthetic results follow. They're not the brief.</p>
+  <div class="pillars reveal-group">
+    <div class="pillar reveal" style="--i:0">
+      <span class="tag-pill">[ GOAL_FIRST ]</span>
+      <p>Your goal anchors everything. The programme, the timeline, the check-ins — all of it works backward from where you're trying to get to.</p>
+    </div>
+    <div class="pillar reveal" style="--i:1">
+      <span class="tag-pill">[ BUILT_BY_HAND ]</span>
+      <p>Ben writes every plan personally. No AI, no templates, no recycled blocks. If it's in your programme, he put it there for you.</p>
+    </div>
+    <div class="pillar reveal" style="--i:2">
+      <span class="tag-pill">[ EVOLVES_WITH_YOU ]</span>
+      <p>Your plan isn't fixed. As you progress, it changes — Ben watches and adjusts so the work always matches where you actually are.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 05 HOW IT WORKS -->
+<section class="pad grid-bg">
+  <div class="eyebrow reveal">// HOW IT WORKS</div>
+  <h2 class="h2 reveal" style="margin-top:16px;">Five steps. No guesswork.</h2>
+  <div class="steps reveal-group">
+    <div class="step reveal" style="--i:0"><div class="num">01</div><div class="lbl">Tell Ben your goal</div></div>
+    <div class="step reveal" style="--i:1"><div class="num">02</div><div class="lbl">Free consultation call</div></div>
+    <div class="step reveal" style="--i:2"><div class="num">03</div><div class="lbl">Choose the right plan</div></div>
+    <div class="step reveal" style="--i:3"><div class="num">04</div><div class="lbl">Train — Ben watches</div></div>
+    <div class="step reveal" style="--i:4"><div class="num">05</div><div class="lbl">Progress. Repeat.</div></div>
+  </div>
+</section>
+
+<!-- 06 PROGRAMME TABLE -->
+<section class="on-cream pad" id="programmes">
+  <div class="eyebrow reveal">// CHOOSE YOUR PROGRAMME</div>
+  <h2 class="h2 reveal" style="margin-top:16px;">Five programmes. One progression.</h2>
+
+  <div style="margin-top:48px;">
+    <div class="prog-row dark reveal">
+      <div class="num">01</div>
+      <div><div class="name">Base</div><div class="detail">4 weeks · 3 sessions/week — foundation building</div></div>
+      <div class="price">$89 <span style="font-size:11px; color:var(--gray-on-black);">one-time</span></div>
+      <div><span class="tag-pill" style="color:var(--orange); border-color:var(--orange);">[ ENTRY ]</span></div>
+      <button class="bracket-btn">[ START NOW ]</button>
+    </div>
+    <div class="prog-row dark reveal">
+      <div class="num">02</div>
+      <div><div class="name">Build</div><div class="detail">4 weeks · 4 sessions/week — conditioning, strength or muscle focus</div></div>
+      <div class="price">$89 <span style="font-size:11px; color:var(--gray-on-black);">one-time</span></div>
+      <div><span class="tag-pill" style="color:var(--orange); border-color:var(--orange);">[ ENTRY ]</span></div>
+      <button class="bracket-btn">[ START NOW ]</button>
+    </div>
+    <div class="prog-row reveal">
+      <div class="num">03</div>
+      <div><div class="name">Prime</div><div class="detail">4–5 sessions/week — monthly programming updates, proven S&C blocks</div></div>
+      <div class="price">$119<span style="font-size:11px; color:var(--gray-on-cream);">/mo</span></div>
+      <div><span class="tag-pill" style="color:var(--gray-on-cream); border-color:rgba(17,17,17,0.2);">[ WAITLIST ]</span></div>
+      <button class="ghost-btn">[ JOIN WAITLIST ]</button>
+    </div>
+    <div class="prog-row reveal">
+      <div class="num">04</div>
+      <div><div class="name">Pro</div><div class="detail">3–5 sessions/week — custom plan + nutrition + monthly check-ins</div></div>
+      <div class="price">$219<span style="font-size:11px; color:var(--gray-on-cream);">/mo</span></div>
+      <div><span class="tag-pill" style="color:var(--gray-on-cream); border-color:rgba(17,17,17,0.2);">[ WAITLIST ]</span></div>
+      <button class="ghost-btn">[ JOIN WAITLIST ]</button>
+    </div>
+    <div class="prog-row dark reveal" style="border-bottom:none;">
+      <div class="num">05</div>
+      <div><div class="name">Custom</div><div class="detail">Fully private · weekly updates · 24/7 access to Ben</div></div>
+      <div class="price">$529<span style="font-size:11px; color:var(--gray-on-black);">/mo</span></div>
+      <div><span class="tag-pill" style="color:var(--orange); border-color:var(--orange);">[ 10 MAX ]</span></div>
+      <button class="bracket-btn">[ APPLY NOW ]</button>
+    </div>
+  </div>
+
+  <div class="progress-path reveal">
+    <span class="node">BASE</span> → <span class="node">BUILD</span> → <span class="node">PRIME</span> → <span class="node">PRO</span> → <span class="node">CUSTOM</span>
+  </div>
+</section>
+
+<!-- 07 GUARANTEE -->
+<section class="strip" style="flex-direction:column; align-items:flex-start; gap:14px;">
+  <span class="tag-pill" style="color:var(--black); border-color:var(--black);">[ THE GUARANTEE ]</span>
+  <h2 style="font-weight:900; font-size:clamp(22px,3vw,34px); text-transform:uppercase; max-width:680px;">It's not send-and-forget. It's coached.</h2>
+  <p style="max-width:600px; font-size:14px; line-height:1.6;">Ben doesn't hand you a plan and disappear. He builds it personally, after talking to you — and he's the one watching how you respond to it, not an app guessing on your behalf.</p>
+</section>
+
+<!-- 08 COACH BEN -->
+<section class="on-cream pad">
+  <div class="ben-grid">
+    <div class="ben-photo reveal">
+      <div class="reticle tl"></div>
+      <div class="reticle br"></div>
+      <div class="photo-label">[ PLACEHOLDER — NOT BEN ]</div>
+    </div>
+    <div class="reveal">
+      <div class="eyebrow">// YOUR COACH</div>
+      <h2 class="ben-headline">Not an app. Not AI. <span style="color:var(--orange);">Ben builds it.</span></h2>
+      <p class="ben-bio">Coach Speedy — 17 years coaching across New Zealand, Kuwait and Dubai. Former top-level athlete across multiple sports. Founder of gyms in three countries. Now coaching remotely, worldwide, one programme at a time.</p>
+    </div>
+  </div>
+  <div class="stat-row on-cream reveal" style="margin-top:56px; border-radius:2px;">
+    <div class="stat"><div class="num" data-target="17">0</div><div class="lbl">Years coaching</div></div>
+    <div class="stat"><div class="num" data-target="3">0</div><div class="lbl">Countries</div></div>
+    <div class="stat"><div class="num" data-target="10">0</div><div class="lbl">Custom slots max</div></div>
+  </div>
+</section>
+
+<!-- 09 TESTIMONIALS / FIELD REPORTS -->
+<section class="pad">
+  <div class="eyebrow reveal">// FIELD REPORTS</div>
+  <h2 class="h2 reveal" style="margin-top:16px;">What changes when you train with a purpose.</h2>
+  <div class="quotes reveal-group">
+    <div class="quote reveal" style="--i:0">
+      <div class="stars">★★★★★</div>
+      <blockquote>"I stopped chasing the mirror and started chasing numbers. The numbers won."</blockquote>
+      <div class="name">J. Mereki</div>
+      <div class="journey">BUILD → PRIME · 6 MONTHS</div>
+    </div>
+    <div class="quote reveal" style="--i:1">
+      <div class="stars">★★★★★</div>
+      <blockquote>"Six week challenges make you look like you did a six week challenge. This didn't."</blockquote>
+      <div class="name">S. Patel</div>
+      <div class="journey">BASE → BUILD · 4 MONTHS</div>
+    </div>
+    <div class="quote reveal" style="--i:2">
+      <div class="stars">★★★★★</div>
+      <blockquote>"First coach who's actually watched what I was doing and changed the plan because of it."</blockquote>
+      <div class="name">R. Anderson</div>
+      <div class="journey">PRO · 11 MONTHS</div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 PULL QUOTE -->
+<section class="on-cream pad pullquote">
+  <div class="qmark">"</div>
+  <blockquote class="reveal">This isn't a cookie-cutter plan. It's tailored, strategic, and backed by experience. Your coach will guide you every step of the way, help you break through plateaus, and hold you accountable when motivation dips.</blockquote>
+  <div class="attr reveal">BEN THOMPSON — FOUNDER, PRFM</div>
+</section>
+
+<!-- 11 FINAL CTA -->
+<section class="pad grid-bg" id="contact">
+  <span class="tag-pill reveal" style="color:var(--orange); border-color:var(--orange);">[ LIMITED SPOTS ]</span>
+  <h2 class="final-headline reveal">Achieve your goal. Start here.</h2>
+  <p class="final-sub reveal">Free guide. Free consultation call. No commitment until you're ready.</p>
+  <div class="final-form reveal">
+    <input class="input" type="email" placeholder="you@email.com">
+    <button class="bracket-btn">[ SEND ME THE GUIDE ]</button>
+  </div>
+  <p class="fine-print">By submitting you'll receive "The PRFM Method" — Ben's free guide — plus occasional emails about your spot.</p>
+</section>
+
+<footer>PRFM TRAINING © 2026 · DUNEDIN, NZ — COACHING WORLDWIDE</footer>
+
+<script>
+  // scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in-view'); io.unobserve(e.target); } });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el => io.observe(el));
+
+  // count-up stats (Coach Ben section)
+  const counters = document.querySelectorAll('[data-target]');
+  const cio = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el = e.target;
+      const target = parseInt(el.getAttribute('data-target'), 10);
+      let cur = 0;
+      const step = Math.max(1, Math.round(target / 20));
+      const t = setInterval(() => {
+        cur = Math.min(target, cur + step);
+        el.textContent = cur;
+        if (cur >= target) clearInterval(t);
+      }, 40);
+      cio.unobserve(el);
+    });
+  }, { threshold: 0.4 });
+  counters.forEach(el => cio.observe(el));
+</script>
+
+</body>
+</html>
