@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRFM — Programme Table Format Test</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;900&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:ital,wght@1,400;1,500&display=swap');
+  :root{
+    --black:#111111; --cream:#F9F6F2; --white:#FFFFFF; --orange:#FF8210;
+    --gray-on-black: rgba(249,246,242,0.55); --gray-on-cream: rgba(17,17,17,0.55);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Inter',sans-serif; background:var(--cream); color:var(--black);}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit;}
+  .pad{padding:64px 56px;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.05em; color:var(--orange);}
+  .h2{font-weight:900; font-size:clamp(24px,3vw,36px); line-height:1.15; letter-spacing:-0.01em; text-transform:uppercase;}
+  .tag-pill{display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.04em; padding:5px 10px; border:1px solid currentColor;}
+  .bracket-btn{background:var(--orange); color:var(--black); border:none; border-radius:6px; font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:13px; letter-spacing:0.03em; padding:15px 26px; cursor:pointer;}
+  .ghost-btn{background:transparent; color:var(--black); border:1px solid rgba(17,17,17,0.3); border-radius:6px; font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:13px; padding:14px 25px; cursor:pointer;}
+
+  /* ===================================================================
+     TEST HARNESS UI — this is NOT part of the site design. It's the
+     switcher chrome for this comparison page only (tabs, notes, verdict
+     boxes). None of this should be copied into the real build.
+     =================================================================== */
+  .harness-header{background:var(--black); color:var(--white); padding:28px 56px; position:sticky; top:0; z-index:100; border-bottom:1px solid rgba(255,130,16,0.3);}
+  .harness-header h1{font-size:15px; font-weight:900; text-transform:uppercase; letter-spacing:0.02em;}
+  .harness-header p{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--gray-on-black); margin-top:6px;}
+  .tabs{display:flex; gap:0; margin-top:18px; border:1px solid rgba(255,130,16,0.3); width:fit-content;}
+  .tab{font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.03em; padding:10px 20px; cursor:pointer; background:transparent; color:var(--gray-on-black); border:none; border-right:1px solid rgba(255,130,16,0.3); transition:background .15s, color .15s;}
+  .tab:last-child{border-right:none;}
+  .tab:hover{color:var(--white);}
+  .tab.active{background:var(--orange); color:var(--black);}
+  .view{display:none;}
+  .view.active{display:block;}
+  .note-box{background:var(--white); border-left:3px solid var(--orange); padding:18px 24px; margin:0 56px 0; font-size:13px; line-height:1.6; color:rgba(17,17,17,0.75);}
+  .note-box b{color:var(--black);}
+  /* ===================================================================
+     END TEST HARNESS UI
+     =================================================================== */
+
+  /* ===== programme table (baseline, from live build) ===== */
+  .prog-row{display:grid; grid-template-columns:50px 2fr 1fr 1fr auto; align-items:center; gap:24px; padding:26px 0; border-bottom:1px solid rgba(17,17,17,0.12);}
+  .prog-row.dark{background:var(--black); color:var(--white); padding:26px 24px; border-bottom:1px solid rgba(255,130,16,0.2); border-radius:10px;}
+  .prog-row .num{font-family:'IBM Plex Mono',monospace; color:var(--orange); font-size:14px;}
+  .prog-row .name{font-weight:900; font-size:18px; text-transform:uppercase;}
+  .prog-row .detail{font-size:13px; color:var(--gray-on-cream);}
+  .prog-row.dark .detail{color:var(--gray-on-black);}
+  .prog-row .price{font-family:'IBM Plex Mono',monospace; font-size:16px;}
+  .price-week{display:block; font-size:10px; color:var(--gray-on-cream); margin-top:2px; font-weight:400;}
+  .prog-row.dark .price-week{color:var(--gray-on-black);}
+  .prog-group-label{display:flex; align-items:center; gap:14px; margin:36px 0 4px;}
+  .prog-group-label .line{flex:1; height:1px; background:rgba(17,17,17,0.15);}
+  .prog-group-label span.txt{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.08em; color:var(--gray-on-cream); white-space:nowrap;}
+  .prog-group-label:first-child{margin-top:0;}
+  .prog-row.tier-option{border-left:3px solid rgba(255,130,16,0.35); padding-left:20px;}
+  .prog-row.pro-row{background:var(--black); color:var(--white); border:1px solid var(--orange); padding:30px 24px; border-radius:10px; position:relative; box-shadow:0 0 0 1px rgba(255,130,16,0.15), 0 12px 32px rgba(255,130,16,0.12);}
+  .prog-row.pro-row .detail{color:var(--gray-on-black);}
+  .prog-row.pro-row .price-week{color:var(--gray-on-black);}
+  .pro-badge{position:absolute; top:-11px; left:24px; background:var(--orange); color:var(--black); font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.06em; padding:4px 10px; font-weight:500;}
+  .pro-value-note{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--orange); margin-top:6px;}
+  .progress-path{display:flex; align-items:center; gap:10px; margin-top:36px; flex-wrap:wrap; font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--gray-on-cream); letter-spacing:0.04em;}
+  .progress-path span.node{color:var(--black); font-weight:500;}
+
+  /* ===== carousel shared engine ===== */
+  .carousel-controls{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
+  .carousel-index{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--gray-on-cream); letter-spacing:0.04em;}
+  .carousel-btns{display:flex; gap:10px;}
+  .carousel-btn{background:transparent; border:1px solid rgba(17,17,17,0.25); border-radius:6px; color:var(--black); font-family:'IBM Plex Mono',monospace; font-size:13px; padding:8px 16px; cursor:pointer; transition:background .15s;}
+  .carousel-btn:hover{background:rgba(17,17,17,0.06);}
+  .carousel-btn:disabled{opacity:0.25; cursor:default;}
+  .carousel-track{display:flex; gap:20px; overflow-x:auto; scroll-snap-type:x mandatory; padding:6px 4px 16px; cursor:grab; user-select:none; scrollbar-width:none;}
+  .carousel-track::-webkit-scrollbar{display:none;}
+  .carousel-track:active{cursor:grabbing;}
+  .carousel-track:focus{outline:none;}
+  .carousel-track:focus-visible{outline:2px solid var(--orange); outline-offset:6px;}
+  .carousel-dots{display:flex; gap:8px; margin-top:6px; justify-content:center;}
+  .carousel-dot{width:6px; height:6px; border-radius:50%; background:rgba(17,17,17,0.18); border:none; padding:0; cursor:pointer; transition:background .2s, width .2s, border-radius .2s;}
+  .carousel-dot.active{background:var(--orange); width:20px; border-radius:3px;}
+
+  /* Carousel — 2-3 cards visible at once, peek of the next (used by view 02) */
+  .peek-track .prog-card{flex:0 0 280px;}
+  @media (min-width:900px){ .peek-track .prog-card{flex:0 0 300px;} }
+
+  /* Carousel — one full-width card at a time (used by view 04's phone carousel) */
+  .single-track .prog-card{flex:0 0 100%;}
+
+  .prog-card{position:relative; scroll-snap-align:start; border:1px solid rgba(17,17,17,0.14); border-radius:12px; padding:26px; display:flex; flex-direction:column; gap:12px; background:var(--cream);}
+  .prog-card.dark{background:var(--black); color:var(--white); border-color:rgba(255,130,16,0.3);}
+  .prog-card.tier-card{border-color:rgba(255,130,16,0.35); border-left-width:3px;}
+  .prog-card.pro-card{background:var(--black); color:var(--white); border:1px solid var(--orange); box-shadow:0 0 0 1px rgba(255,130,16,0.15), 0 12px 32px rgba(255,130,16,0.12);}
+  .prog-card .num{font-family:'IBM Plex Mono',monospace; color:var(--orange); font-size:14px;}
+  .prog-card .name{font-weight:900; font-size:22px; text-transform:uppercase;}
+  .prog-card .group-tag{font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.06em; color:var(--gray-on-cream); text-transform:uppercase;}
+  .prog-card.dark .group-tag, .prog-card.pro-card .group-tag{color:var(--gray-on-black);}
+  .prog-card .detail{font-size:13px; color:var(--gray-on-cream); line-height:1.55; min-height:56px;}
+  .prog-card.dark .detail, .prog-card.pro-card .detail{color:var(--gray-on-black);}
+  .prog-card .price{font-family:'IBM Plex Mono',monospace; font-size:24px; margin-top:4px;}
+  .prog-card .price-week{display:block; font-size:11px; color:var(--gray-on-cream); font-weight:400; margin-top:2px;}
+  .prog-card.dark .price-week, .prog-card.pro-card .price-week{color:var(--gray-on-black);}
+  .start-badge{position:absolute; top:-11px; left:22px; background:var(--orange); color:var(--black); font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.05em; padding:4px 10px; font-weight:500;}
+
+  .verdict{background:var(--black); color:var(--white); padding:20px 24px; margin:32px 56px 0; font-size:13px; line-height:1.65;}
+  .verdict b{color:var(--orange);}
+
+  /* =====================================================================
+     TWO-ROW LAYOUT — shared by view 03 (no carousel, reflows to single
+     column on phones) and view 04 (same rows on desktop/tablet, but
+     switches to a carousel below 768px instead of stacking). Row 1 =
+     Base/Build/Strong/Capacity/Prime, row 2 = Pro (wide) + Custom.
+     ===================================================================== */
+  .prog-rows{display:flex; flex-direction:column; gap:16px; margin-top:36px;}
+  .prog-row-line{display:grid; gap:14px;}
+  .prog-row-line.row-a{grid-template-columns:repeat(5,1fr);}
+  .prog-row-line.row-b{grid-template-columns:1.6fr 1fr;}
+
+  .row-card{position:relative; border:1px solid rgba(17,17,17,0.14); border-radius:12px; padding:18px; display:flex; flex-direction:column; background:var(--cream); min-height:200px;}
+  .row-card.dark{background:var(--black); color:var(--white); border-color:rgba(255,130,16,0.3);}
+  .row-card.tier{border-color:rgba(255,130,16,0.35); border-left-width:3px;}
+  .row-card .rc-eyebrow{font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.06em; color:var(--orange); text-transform:uppercase;}
+  .row-card .num{font-family:'IBM Plex Mono',monospace; color:var(--orange); font-size:12px; margin-top:8px;}
+  .row-card .name{font-weight:900; font-size:16px; text-transform:uppercase; margin-top:2px;}
+  .row-card .detail{font-size:11.5px; color:var(--gray-on-cream); line-height:1.5; margin-top:6px;}
+  .row-card.dark .detail{color:var(--gray-on-black);}
+  .row-card .price{font-family:'IBM Plex Mono',monospace; font-size:17px; margin-top:auto; padding-top:10px;}
+  .row-card .price-week{display:block; font-size:10px; color:var(--gray-on-cream); font-weight:400;}
+  .row-card.dark .price-week{color:var(--gray-on-black);}
+  .row-card .rc-btn{margin-top:10px; align-self:flex-start;}
+
+  .row-card.pro-wide{background:var(--black); color:var(--white); border:1px solid var(--orange); border-radius:14px; flex-direction:row; align-items:center; justify-content:space-between; gap:20px; padding:22px 26px; box-shadow:0 0 0 1px rgba(255,130,16,0.15), 0 14px 32px rgba(255,130,16,0.13);}
+  .row-card.pro-wide .name{font-size:22px;}
+  .row-card.pro-wide .detail{color:var(--gray-on-black); font-size:12.5px; max-width:340px;}
+  .row-card.pro-wide .price{font-size:22px; margin-top:0; padding-top:0;}
+  .rc-badge{position:absolute; top:-9px; left:16px; background:var(--orange); color:var(--black); font-family:'IBM Plex Mono',monospace; font-size:8px; letter-spacing:0.05em; padding:3px 8px; font-weight:500;}
+  .row-card.pro-wide .rc-badge{position:static; margin-bottom:4px;}
+  .pro-wide-price-row{display:flex; align-items:center; gap:20px;}
+  .rc-btn-sm{background:var(--orange); color:var(--black); border:none; border-radius:6px; font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:11px; padding:9px 14px; cursor:pointer; transition:filter .15s;}
+  .rc-btn-sm:hover{filter:brightness(1.08);}
+  .rc-btn-sm.ghost{background:transparent; color:var(--black); border:1px solid rgba(17,17,17,0.3); border-radius:6px;}
+  .rc-btn-sm.ghost:hover{background:rgba(17,17,17,0.06);}
+  .row-card.dark .rc-btn-sm.ghost{color:var(--white); border-color:rgba(255,255,255,0.3);}
+  .row-card.pro-wide .rc-btn-sm{padding:12px 20px; font-size:12px;}
+
+  @media (max-width:900px){
+    .prog-row-line.row-a{grid-template-columns:repeat(3,1fr);}
+    .prog-row-line.row-b{grid-template-columns:1.3fr 1fr;}
+    .row-card.pro-wide{flex-direction:column; align-items:flex-start; gap:14px;}
+    .pro-wide-price-row{width:100%; justify-content:space-between;}
+  }
+
+  @media (max-width:560px){
+    .prog-row-line.row-a{grid-template-columns:1fr;}
+    .prog-row-line.row-b{grid-template-columns:1fr;}
+  }
+
+  /* view 04 only — the phone carousel is hidden until <768px, at which
+     point .row-desktop hides and this takes over instead of stacking. */
+  .phone-carousel{display:none;}
+  @media (max-width:768px){
+    #view-hybrid .row-desktop{display:none;}
+    .phone-carousel{display:block;}
+  }
+
+  @media (max-width:900px){
+    .pad{padding:40px 20px;}
+    .harness-header{padding:20px;}
+    .note-box, .verdict{margin-left:20px; margin-right:20px;}
+    .prog-row{grid-template-columns:1fr; gap:8px; padding:20px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="harness-header">
+  <h1>PRFM — PROGRAMME FORMAT TEST</h1>
+  <p>// Comparing 4 ways to present the 7 programmes. Same content, same design system, same CTAs. Not a live page — for review only.</p>
+  <div class="tabs mono">
+    <button class="tab active" data-view="view-table">01 · TABLE (CURRENT)</button>
+    <button class="tab" data-view="view-peek">02 · CAROUSEL — MULTI-CARD PEEK</button>
+    <button class="tab" data-view="view-responsive">03 · TWO ROWS</button>
+    <button class="tab" data-view="view-hybrid">04 · TWO ROWS (DESKTOP) + CAROUSEL (PHONE)</button>
+  </div>
+</div>
+
+<!-- ===================== VIEW 1: TABLE (current live build) ===================== -->
+<div class="view active" id="view-table">
+  <div class="note-box" style="margin-top:28px;">
+    <b>This is what's currently live</b> in the main build. Grouped rows: Base/Build (entry), Strong/Capacity/Prime (pick-your-goal tier), Pro (recommended, highlighted), Custom (private). Everything visible at once, no interaction needed to compare.
+  </div>
+  <section class="pad" id="programmes">
+    <div class="eyebrow">// CHOOSE YOUR PROGRAMME</div>
+    <h2 class="h2" style="margin-top:16px;">Seven programmes. One progression.</h2>
+
+    <div class="prog-group-label"><span class="txt">// ENTRY — ONE-TIME</span><div class="line"></div></div>
+    <div>
+      <div class="prog-row dark">
+        <div class="num">01</div>
+        <div><div class="name">Base</div><div class="detail">4 weeks · 3 sessions/week — foundation building</div></div>
+        <div class="price">$89 <span style="font-size:11px; color:var(--gray-on-black);">one-time</span></div>
+        <div><span class="tag-pill" style="color:var(--orange); border-color:var(--orange);">[ ENTRY ]</span></div>
+        <button class="bracket-btn">[ JOIN WAITLIST ]</button>
+      </div>
+      <div class="prog-row dark">
+        <div class="num">02</div>
+        <div><div class="name">Build</div><div class="detail">4 weeks · 4 sessions/week — conditioning, strength or muscle focus</div></div>
+        <div class="price">$89 <span style="font-size:11px; color:var(--gray-on-black);">one-time</span></div>
+        <div><span class="tag-pill" style="color:var(--orange); border-color:var(--orange);">[ ENTRY ]</span></div>
+        <button class="bracket-btn">[ JOIN WAITLIST ]</button>
+      </div>
+    </div>
+
+    <div class="prog-group-label"><span class="txt">// SUBSCRIPTION — PICK YOUR GOAL · $149/MO</span><div class="line"></div></div>
+    <div>
+      <div class="prog-row tier-option">
+        <div class="num">03</div>
+        <div><div class="name">Strong</div><div class="detail">Barbell strength &amp; bodyweight mastery</div></div>
+        <div class="price">$149<span class="price-week">/mo · $35/wk</span></div>
+        <div><span class="tag-pill" style="color:var(--gray-on-cream); border-color:rgba(17,17,17,0.2);">[ WAITLIST ]</span></div>
+        <button class="ghost-btn">[ JOIN WAITLIST ]</button>
+      </div>
+      <div class="prog-row tier-option">
+        <div class="num">04</div>
+        <div><div class="name">Capacity</div><div class="detail">Aerobic capacity &amp; endurance — crush any endurance event</div></div>
+        <div class="price">$149<span class="price-week">/mo · $35/wk</span></div>
+        <div><span class="tag-pill" style="color:var(--gray-on-cream); border-color:rgba(17,17,17,0.2);">[ WAITLIST ]</span></div>
+        <button class="ghost-btn">[ JOIN WAITLIST ]</button>
+      </div>
+      <div class="prog-row tier-option">
+        <div class="num">05</div>
+        <div><div class="name">Prime</div><div class="detail">Full body S&amp;C — the most well-rounded athlete programme</div></div>
+        <div class="price">$149<span class="price-week">/mo · $35/wk</span></div>
+        <div><span class="tag-pill" style="color:var(--gray-on-cream); border-color:rgba(17,17,17,0.2);">[ WAITLIST ]</span></div>
+        <button class="ghost-btn">[ JOIN WAITLIST ]</button>
+      </div>
+    </div>
+
+    <div class="prog-group-label"><span class="txt">// ALL-ACCESS</span><div class="line"></div></div>
+    <div>
+      <div class="prog-row pro-row">
+        <div class="pro-badge">RECOMMENDED</div>
+        <div class="num" style="color:var(--orange);">06</div>
+        <div>
+          <div class="name">Pro</div>
+          <div class="detail">Full access to Strong, Capacity AND Prime — train all three, switch anytime</div>
+          <div class="pro-value-note">All three programmes for $70/mo more than one alone</div>
+        </div>
+        <div class="price">$219<span class="price-week">/mo · $55/wk</span></div>
+        <div><span class="tag-pill" style="color:var(--orange); border-color:var(--orange);">[ WAITLIST ]</span></div>
+        <button class="bracket-btn">[ JOIN WAITLIST ]</button>
+      </div>
+    </div>
+
+    <div class="prog-group-label"><span class="txt">// PRIVATE COACHING</span><div class="line"></div></div>
+    <div>
+      <div class="prog-row dark" style="border-bottom:none;">
+        <div class="num">07</div>
+        <div><div class="name">Custom</div><div class="detail">Fully bespoke plan · personalised nutrition &amp; lifestyle guide · full access to Ben · max 10 clients</div></div>
+        <div class="price">$529<span class="price-week">/mo · $125/wk</span></div>
+        <div><span class="tag-pill" style="color:var(--orange); border-color:var(--orange);">[ 10 MAX ]</span></div>
+        <button class="bracket-btn">[ JOIN WAITLIST ]</button>
+      </div>
+    </div>
+
+    <div class="progress-path">
+      <span class="node">BASE</span> → <span class="node">BUILD</span> → <span class="node">STRONG / CAPACITY / PRIME</span> → <span class="node">PRO</span> → <span class="node">CUSTOM</span>
+    </div>
+  </section>
+  <div class="verdict">
+    <b>Read:</b> every programme and its relationship to the others is visible without touching anything — you can see at a glance that Strong/Capacity/Prime are parallel, and that Pro sits above them. Trade-off: it's a long scroll, especially on mobile where each row stacks to full width.
+  </div>
+</div>
+
+<!-- ===================== VIEW 02: CAROUSEL — MULTI-CARD PEEK ===================== -->
+<div class="view" id="view-peek">
+  <div class="note-box" style="margin-top:28px;">
+    <b>2–3 cards visible at once, peek of the next.</b> Narrower cards than a full-bleed card, scroll-snap sideways. Middle ground between the table (everything visible) and a single-card-at-a-time carousel (nothing visible but the current card).
+  </div>
+  <section class="pad">
+    <div class="eyebrow">// CHOOSE YOUR PROGRAMME</div>
+    <h2 class="h2" style="margin-top:16px;">Seven programmes. One progression.</h2>
+    <p style="max-width:520px; margin-top:14px; color:var(--gray-on-cream); font-size:15px; line-height:1.6;">Swipe or click through to find your fit.</p>
+
+    <div style="margin-top:36px;">
+      <div class="carousel-controls">
+        <span class="carousel-index mono" id="p-index">01 / 07</span>
+        <div class="carousel-btns">
+          <button class="carousel-btn mono" id="p-prev" aria-label="Previous">[ &lt; ]</button>
+          <button class="carousel-btn mono" id="p-next" aria-label="Next">[ &gt; ]</button>
+        </div>
+      </div>
+      <div class="carousel-track peek-track" id="p-track" tabindex="0">
+        <div class="prog-card dark">
+          <div class="start-badge">MOST START HERE</div>
+          <div class="group-tag">ENTRY</div>
+          <div class="num">01</div>
+          <div class="name">Base</div>
+          <div class="detail">4 weeks · 3 sessions/week — foundation building</div>
+          <div class="price">$89<span class="price-week">one-time</span></div>
+          <button class="bracket-btn">[ JOIN WAITLIST ]</button>
+        </div>
+        <div class="prog-card dark">
+          <div class="group-tag">ENTRY</div>
+          <div class="num">02</div>
+          <div class="name">Build</div>
+          <div class="detail">4 weeks · 4 sessions/week — conditioning, strength or muscle focus</div>
+          <div class="price">$89<span class="price-week">one-time</span></div>
+          <button class="bracket-btn">[ JOIN WAITLIST ]</button>
+        </div>
+        <div class="prog-card tier-card">
+          <div class="group-tag">PICK YOUR GOAL</div>
+          <div class="num">03</div>
+          <div class="name">Strong</div>
+          <div class="detail">Barbell strength &amp; bodyweight mastery</div>
+          <div class="price">$149<span class="price-week">/mo · $35/wk</span></div>
+          <button class="ghost-btn">[ JOIN WAITLIST ]</button>
+        </div>
+        <div class="prog-card tier-card">
+          <div class="group-tag">PICK YOUR GOAL</div>
+          <div class="num">04</div>
+          <div class="name">Capacity</div>
+          <div class="detail">Aerobic capacity &amp; endurance — crush any endurance event</div>
+          <div class="price">$149<span class="price-week">/mo · $35/wk</span></div>
+          <button class="ghost-btn">[ JOIN WAITLIST ]</button>
+        </div>
+        <div class="prog-card tier-card">
+          <div class="group-tag">PICK YOUR GOAL</div>
+          <div class="num">05</div>
+          <div class="name">Prime</div>
+          <div class="detail">Full body S&amp;C — the most well-rounded athlete programme</div>
+          <div class="price">$149<span class="price-week">/mo · $35/wk</span></div>
+          <button class="ghost-btn">[ JOIN WAITLIST ]</button>
+        </div>
+        <div class="prog-card pro-card">
+          <div class="start-badge">RECOMMENDED</div>
+          <div class="group-tag">ALL-ACCESS</div>
+          <div class="num" style="color:var(--orange);">06</div>
+          <div class="name">Pro</div>
+          <div class="detail">All access to Strong, Capacity &amp; Prime. $70/mo more than one alone.</div>
+          <div class="price">$219<span class="price-week">/mo · $55/wk</span></div>
+          <button class="bracket-btn">[ JOIN WAITLIST ]</button>
+        </div>
+        <div class="prog-card dark">
+          <div class="group-tag">PRIVATE</div>
+          <div class="num">07</div>
+          <div class="name">Custom</div>
+          <div class="detail">Fully bespoke · personalised nutrition &amp; lifestyle guide · full access to Ben · max 10 clients</div>
+          <div class="price">$529<span class="price-week">/mo · $125/wk</span></div>
+          <button class="bracket-btn">[ JOIN WAITLIST ]</button>
+        </div>
+      </div>
+      <div class="carousel-dots" id="p-dots"></div>
+    </div>
+  </section>
+  <div class="verdict">
+    <b>Read:</b> best of both — Strong/Capacity/Prime can be visible side by side at once on desktop (3 cards fit), so the "pick one" framing still reads without swiping. On mobile it degrades toward the single-card experience anyway (only ~1.2 cards fit on a phone screen), so the mobile experience is nearly identical to view 2.
+  </div>
+</div>
+
+<!-- ===================== VIEW 03: TWO ROWS, ALL SCREEN SIZES ===================== -->
+<div class="view" id="view-responsive">
+  <div class="note-box" style="margin-top:28px;">
+    <b>Two rows, everything visible, no interaction required — same layout at every screen size.</b> Row 1 = Base/Build/Strong/Capacity/Prime, row 2 = Pro (wide) + Custom — kept this split rather than a neutral 4/3 split so Strong/Capacity/Prime stay together as one visual set, same grouping logic used throughout this file. On narrower screens the rows reflow (5 columns → 3 → stacked) rather than switching to a carousel — normal responsive behaviour, not a layout swap.
+  </div>
+  <section class="pad">
+    <div class="eyebrow">// CHOOSE YOUR PROGRAMME</div>
+    <h2 class="h2" style="margin-top:16px;">Seven programmes. One progression.</h2>
+    <p style="max-width:520px; margin-top:14px; color:var(--gray-on-cream); font-size:15px; line-height:1.6;">Two rows, everything visible.</p>
+
+    <div class="row-desktop">
+      <div class="prog-rows">
+        <div class="prog-row-line row-a">
+          <div class="row-card dark">
+            <div class="rc-badge">START HERE</div>
+            <div class="rc-eyebrow">ENTRY</div>
+            <div class="num">01</div>
+            <div class="name">Base</div>
+            <div class="detail">4wk · 3x/week · foundation building</div>
+            <div class="price">$89<span class="price-week">one-time</span></div>
+            <button class="rc-btn-sm rc-btn">[ JOIN WAITLIST ]</button>
+          </div>
+          <div class="row-card dark">
+            <div class="rc-eyebrow">ENTRY</div>
+            <div class="num">02</div>
+            <div class="name">Build</div>
+            <div class="detail">4wk · 4x/week · conditioning, strength or muscle</div>
+            <div class="price">$89<span class="price-week">one-time</span></div>
+            <button class="rc-btn-sm rc-btn">[ JOIN WAITLIST ]</button>
+          </div>
+          <div class="row-card tier">
+            <div class="rc-eyebrow">PICK YOUR GOAL</div>
+            <div class="num">03</div>
+            <div class="name">Strong</div>
+            <div class="detail">Barbell strength &amp; bodyweight mastery</div>
+            <div class="price">$149<span class="price-week">/mo · $35/wk</span></div>
+            <button class="rc-btn-sm ghost rc-btn">[ JOIN WAITLIST ]</button>
+          </div>
+          <div class="row-card tier">
+            <div class="rc-eyebrow">PICK YOUR GOAL</div>
+            <div class="num">04</div>
+            <div class="name">Capacity</div>
+            <div class="detail">Aerobic capacity &amp; endurance — any event</div>
+            <div class="price">$149<span class="price-week">/mo · $35/wk</span></div>
+            <button class="rc-btn-sm ghost rc-btn">[ JOIN WAITLIST ]</button>
+          </div>
+          <div class="row-card tier">
+            <div class="rc-eyebrow">PICK YOUR GOAL</div>
+            <div class="num">05</div>
+            <div class="name">Prime</div>
+            <div class="detail">Full body S&amp;C — most well-rounded athlete</div>
+            <div class="price">$149<span class="price-week">/mo · $35/wk</span></div>
+            <button class="rc-btn-sm ghost rc-btn">[ JOIN WAITLIST ]</button>
+          </div>
+        </div>
+        <div class="prog-row-line row-b">
+          <div class="row-card pro-wide">
+            <div>
+              <div class="rc-badge">RECOMMENDED</div>
+              <div class="rc-eyebrow">ALL-ACCESS</div>
+              <div class="num" style="color:var(--orange);">06</div>
+              <div class="name">Pro</div>
+              <div class="detail">Full access to Strong, Capacity AND Prime — train all three, switch anytime. $70/mo more than one alone.</div>
+            </div>
+            <div class="pro-wide-price-row">
+              <div class="price">$219<span class="price-week">/mo · $55/wk</span></div>
+              <button class="rc-btn-sm rc-btn" style="margin-top:0;">[ JOIN WAITLIST ]</button>
+            </div>
+          </div>
+          <div class="row-card dark">
+            <div class="rc-eyebrow">PRIVATE · 10 MAX</div>
+            <div class="num">07</div>
+            <div class="name">Custom</div>
+            <div class="detail">Bespoke plan, nutrition &amp; full access to Ben</div>
+            <div class="price">$529<span class="price-week">/mo · $125/wk</span></div>
+            <button class="rc-btn-sm rc-btn">[ JOIN WAITLIST ]</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+  <div class="verdict">
+    <b>Read:</b> simplest mental model of any option tried — one layout, no interaction required, no swipe/carousel behaviour to test or maintain. Everything visible at every screen size, just reflowed. Trade-off: on narrow phones this still ends up as a single column (5 stacked cards + 2 stacked cards = 7 rows), so it doesn't solve the "reduce mobile scroll" goal as directly as the carousel or bento approaches did — it optimizes for simplicity and one-codepath-to-maintain over minimum scroll length.
+  </div>
+</div>
+
+<!-- ===================== VIEW 04: TWO ROWS (DESKTOP) + CAROUSEL (PHONE) ===================== -->
+<div class="view" id="view-hybrid">
+  <div class="note-box" style="margin-top:28px;">
+    <b>Same two-row layout as view 03 on desktop and tablet — but below 768px wide, the rows are replaced by a single swipeable carousel instead of stacking into 7 full-width rows.</b> This is a genuine breakpoint swap: two different markup blocks exist for the same 7 programmes, and only one is ever visible at a time. Shown here for comparison against view 03's "just reflow, no carousel" approach — <b>resize your browser window past 768px wide to see the swap happen</b>, or view on an actual phone.
+  </div>
+  <section class="pad">
+    <div class="eyebrow">// CHOOSE YOUR PROGRAMME</div>
+    <h2 class="h2" style="margin-top:16px;">Seven programmes. One progression.</h2>
+    <p style="max-width:520px; margin-top:14px; color:var(--gray-on-cream); font-size:15px; line-height:1.6;">Two rows on desktop. Swipe through on phone.</p>
+
+    <!-- DESKTOP/TABLET: two-row grid, ≥768px only -->
+    <div class="row-desktop">
+      <div class="prog-rows">
+        <div class="prog-row-line row-a">
+          <div class="row-card dark">
+            <div class="rc-badge">START HERE</div>
+            <div class="rc-eyebrow">ENTRY</div>
+            <div class="num">01</div>
+            <div class="name">Base</div>
+            <div class="detail">4wk · 3x/week · foundation building</div>
+            <div class="price">$89<span class="price-week">one-time</span></div>
+            <button class="rc-btn-sm rc-btn">[ JOIN WAITLIST ]</button>
+          </div>
+          <div class="row-card dark">
+            <div class="rc-eyebrow">ENTRY</div>
+            <div class="num">02</div>
+            <div class="name">Build</div>
+            <div class="detail">4wk · 4x/week · conditioning, strength or muscle</div>
+            <div class="price">$89<span class="price-week">one-time</span></div>
+            <button class="rc-btn-sm rc-btn">[ JOIN WAITLIST ]</button>
+          </div>
+          <div class="row-card tier">
+            <div class="rc-eyebrow">PICK YOUR GOAL</div>
+            <div class="num">03</div>
+            <div class="name">Strong</div>
+            <div class="detail">Barbell strength &amp; bodyweight mastery</div>
+            <div class="price">$149<span class="price-week">/mo · $35/wk</span></div>
+            <button class="rc-btn-sm ghost rc-btn">[ JOIN WAITLIST ]</button>
+          </div>
+          <div class="row-card tier">
+            <div class="rc-eyebrow">PICK YOUR GOAL</div>
+            <div class="num">04</div>
+            <div class="name">Capacity</div>
+            <div class="detail">Aerobic capacity &amp; endurance — any event</div>
+            <div class="price">$149<span class="price-week">/mo · $35/wk</span></div>
+            <button class="rc-btn-sm ghost rc-btn">[ JOIN WAITLIST ]</button>
+          </div>
+          <div class="row-card tier">
+            <div class="rc-eyebrow">PICK YOUR GOAL</div>
+            <div class="num">05</div>
+            <div class="name">Prime</div>
+            <div class="detail">Full body S&amp;C — most well-rounded athlete</div>
+            <div class="price">$149<span class="price-week">/mo · $35/wk</span></div>
+            <button class="rc-btn-sm ghost rc-btn">[ JOIN WAITLIST ]</button>
+          </div>
+        </div>
+        <div class="prog-row-line row-b">
+          <div class="row-card pro-wide">
+            <div>
+              <div class="rc-badge">RECOMMENDED</div>
+              <div class="rc-eyebrow">ALL-ACCESS</div>
+              <div class="num" style="color:var(--orange);">06</div>
+              <div class="name">Pro</div>
+              <div class="detail">Full access to Strong, Capacity AND Prime — train all three, switch anytime. $70/mo more than one alone.</div>
+            </div>
+            <div class="pro-wide-price-row">
+              <div class="price">$219<span class="price-week">/mo · $55/wk</span></div>
+              <button class="rc-btn-sm rc-btn" style="margin-top:0;">[ JOIN WAITLIST ]</button>
+            </div>
+          </div>
+          <div class="row-card dark">
+            <div class="rc-eyebrow">PRIVATE · 10 MAX</div>
+            <div class="num">07</div>
+            <div class="name">Custom</div>
+            <div class="detail">Bespoke plan, nutrition &amp; full access to Ben</div>
+            <div class="price">$529<span class="price-week">/mo · $125/wk</span></div>
+            <button class="rc-btn-sm rc-btn">[ JOIN WAITLIST ]</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHONE: carousel fallback, <768px only -->
+    <div class="phone-carousel">
+      <div class="carousel-controls">
+        <span class="carousel-index mono" id="h-index">01 / 07</span>
+        <div class="carousel-btns">
+          <button class="carousel-btn mono" id="h-prev" aria-label="Previous">[ &lt; ]</button>
+          <button class="carousel-btn mono" id="h-next" aria-label="Next">[ &gt; ]</button>
+        </div>
+      </div>
+      <div class="carousel-track single-track" id="h-track" tabindex="0">
+        <div class="prog-card dark">
+          <div class="start-badge">MOST START HERE</div>
+          <div class="group-tag">ENTRY</div>
+          <div class="num">01</div>
+          <div class="name">Base</div>
+          <div class="detail">4 weeks · 3 sessions/week — foundation building</div>
+          <div class="price">$89<span class="price-week">one-time</span></div>
+          <button class="bracket-btn">[ JOIN WAITLIST ]</button>
+        </div>
+        <div class="prog-card dark">
+          <div class="group-tag">ENTRY</div>
+          <div class="num">02</div>
+          <div class="name">Build</div>
+          <div class="detail">4 weeks · 4 sessions/week — conditioning, strength or muscle focus</div>
+          <div class="price">$89<span class="price-week">one-time</span></div>
+          <button class="bracket-btn">[ JOIN WAITLIST ]</button>
+        </div>
+        <div class="prog-card tier-card">
+          <div class="group-tag">PICK YOUR GOAL</div>
+          <div class="num">03</div>
+          <div class="name">Strong</div>
+          <div class="detail">Barbell strength &amp; bodyweight mastery</div>
+          <div class="price">$149<span class="price-week">/mo · $35/wk</span></div>
+          <button class="ghost-btn">[ JOIN WAITLIST ]</button>
+        </div>
+        <div class="prog-card tier-card">
+          <div class="group-tag">PICK YOUR GOAL</div>
+          <div class="num">04</div>
+          <div class="name">Capacity</div>
+          <div class="detail">Aerobic capacity &amp; endurance — crush any endurance event</div>
+          <div class="price">$149<span class="price-week">/mo · $35/wk</span></div>
+          <button class="ghost-btn">[ JOIN WAITLIST ]</button>
+        </div>
+        <div class="prog-card tier-card">
+          <div class="group-tag">PICK YOUR GOAL</div>
+          <div class="num">05</div>
+          <div class="name">Prime</div>
+          <div class="detail">Full body S&amp;C — the most well-rounded athlete programme</div>
+          <div class="price">$149<span class="price-week">/mo · $35/wk</span></div>
+          <button class="ghost-btn">[ JOIN WAITLIST ]</button>
+        </div>
+        <div class="prog-card pro-card">
+          <div class="start-badge">RECOMMENDED</div>
+          <div class="group-tag">ALL-ACCESS</div>
+          <div class="num" style="color:var(--orange);">06</div>
+          <div class="name">Pro</div>
+          <div class="detail">Full access to Strong, Capacity AND Prime — train all three, switch anytime. All three for $70/mo more than one alone.</div>
+          <div class="price">$219<span class="price-week">/mo · $55/wk</span></div>
+          <button class="bracket-btn">[ JOIN WAITLIST ]</button>
+        </div>
+        <div class="prog-card dark">
+          <div class="group-tag">PRIVATE COACHING</div>
+          <div class="num">07</div>
+          <div class="name">Custom</div>
+          <div class="detail">Fully bespoke plan · personalised nutrition &amp; lifestyle guide · full access to Ben · max 10 clients</div>
+          <div class="price">$529<span class="price-week">/mo · $125/wk</span></div>
+          <button class="bracket-btn">[ JOIN WAITLIST ]</button>
+        </div>
+      </div>
+      <div class="carousel-dots" id="h-dots"></div>
+    </div>
+  </section>
+  <div class="verdict">
+    <b>Read:</b> best of both — desktop/tablet visitors see everything at once and can compare freely; phone visitors (majority of traffic) get a focused one-card-at-a-time flow instead of 7 stacked rows. Real cost: two markup blocks for the same 7 programmes instead of one — any future price or copy change has to be made twice (once in the desktop rows, once in the phone carousel cards), which is exactly the kind of duplication that quietly drifts out of sync if it's not caught. Worth deciding against view 03 with that maintenance cost in mind, not just the visual difference.
+  </div>
+</div>
+
+<script>
+  function initCarousel(prefix, trackId){
+    const track = document.getElementById(trackId);
+    const prev = document.getElementById(prefix+'-prev');
+    const next = document.getElementById(prefix+'-next');
+    const indexEl = document.getElementById(prefix+'-index');
+    const dotsEl = document.getElementById(prefix+'-dots');
+    const cards = track.querySelectorAll('.prog-card');
+    const total = cards.length;
+
+    function cardStep(){
+      const style = getComputedStyle(track);
+      const gap = parseFloat(style.columnGap || style.gap || 20);
+      return cards[0].getBoundingClientRect().width + gap;
+    }
+    function currentIndex(){
+      return Math.max(0, Math.min(total - 1, Math.round(track.scrollLeft / cardStep())));
+    }
+    function goTo(idx){
+      track.scrollTo({ left: idx * cardStep(), behavior: 'smooth' });
+    }
+    function updateIndex(){
+      const idx = currentIndex();
+      indexEl.textContent = String(idx + 1).padStart(2, '0') + ' / ' + String(total).padStart(2, '0');
+      prev.disabled = idx === 0;
+      next.disabled = idx === total - 1;
+      dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+    }
+    for (let i = 0; i < total; i++) {
+      const dot = document.createElement('button');
+      dot.className = 'carousel-dot';
+      dot.setAttribute('aria-label', 'Go to programme ' + (i + 1));
+      dot.addEventListener('click', () => goTo(i));
+      dotsEl.appendChild(dot);
+    }
+    prev.addEventListener('click', () => goTo(Math.max(0, currentIndex() - 1)));
+    next.addEventListener('click', () => goTo(Math.min(total - 1, currentIndex() + 1)));
+    track.addEventListener('scroll', () => window.requestAnimationFrame(updateIndex));
+    track.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); next.click(); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); prev.click(); }
+    });
+    let dragging = false, startX = 0, startScroll = 0;
+    track.addEventListener('pointerdown', (e) => {
+      dragging = true; startX = e.clientX; startScroll = track.scrollLeft;
+      track.style.scrollSnapType = 'none';
+      track.setPointerCapture(e.pointerId);
+    });
+    track.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      track.scrollLeft = startScroll - (e.clientX - startX);
+    });
+    function endDrag(){
+      if (!dragging) return;
+      dragging = false;
+      track.style.scrollSnapType = 'x mandatory';
+      goTo(currentIndex());
+    }
+    track.addEventListener('pointerup', endDrag);
+    track.addEventListener('pointercancel', endDrag);
+    track.addEventListener('pointerleave', endDrag);
+    updateIndex();
+    return { updateIndex };
+  }
+  const carP = initCarousel('p', 'p-track');
+  const carH = initCarousel('h', 'h-track');
+
+  // The view-04 phone carousel starts hidden both by the inactive-tab rule
+  // and the ≥768px rule, so its card width reads as 0 until it's actually
+  // visible. Re-measure whenever either condition changes.
+  window.addEventListener('resize', () => { carH.updateIndex(); });
+
+  // tab switcher
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.view).classList.add('active');
+      // re-measure in case this tab's carousel was hidden (width 0) until now
+      if (tab.dataset.view === 'view-peek') carP.updateIndex();
+      if (tab.dataset.view === 'view-hybrid') carH.updateIndex();
+    });
+  });
+</script>
+
+</body>
+</html>
