@@ -50,3 +50,62 @@
     });
   }, { threshold: 0.4 });
   counters.forEach(el => cio.observe(el));
+
+  // Blog carousel
+  (function(){
+    const track = document.getElementById('blog-track');
+    const wrap  = document.getElementById('blog-wrap');
+    const dotsEl = document.getElementById('blog-dots');
+    const cards = Array.from(track.querySelectorAll('.blog-card'));
+    const total = cards.length;
+    let current = Math.floor(total / 2); // start on center card
+
+    // Build dots
+    cards.forEach((_, i) => {
+      const d = document.createElement('div');
+      d.className = 'blog-dot';
+      d.addEventListener('click', () => goTo(i));
+      dotsEl.appendChild(d);
+    });
+
+    function goTo(idx) {
+      current = Math.max(0, Math.min(total - 1, idx));
+      render();
+    }
+
+    function render() {
+      cards.forEach((c, i) => {
+        const dist = i - current;
+        c.classList.remove('center', 'side');
+        if (dist === 0) {
+          c.classList.add('center');
+          c.style.order = 2;
+        } else {
+          c.classList.add('side');
+          c.style.order = dist < 0 ? 1 : 3;
+        }
+        // Only show -1, 0, +1 positions; hide anything further
+        c.style.display = Math.abs(dist) > 1 ? 'none' : '';
+      });
+      // Dots
+      Array.from(dotsEl.children).forEach((d, i) => {
+        d.classList.toggle('active', i === current);
+      });
+    }
+
+    document.getElementById('blog-prev').addEventListener('click', () => goTo(current - 1));
+    document.getElementById('blog-next').addEventListener('click', () => goTo(current + 1));
+
+    // Drag / swipe
+    let startX = 0, isDragging = false;
+    wrap.addEventListener('pointerdown', e => { startX = e.clientX; isDragging = true; wrap.setPointerCapture(e.pointerId); });
+    wrap.addEventListener('pointermove', e => { if (!isDragging) return; });
+    wrap.addEventListener('pointerup', e => {
+      if (!isDragging) return;
+      isDragging = false;
+      const delta = e.clientX - startX;
+      if (Math.abs(delta) > 40) goTo(current + (delta < 0 ? 1 : -1));
+    });
+
+    render();
+  })();
