@@ -119,7 +119,7 @@
     <a href="#philosophy">Learn</a>
     <a href="#contact">Chat</a>
   </nav>
-  <a href="#contact" class="engage waitlist-cta" data-launch-text="[ APPLY NOW ]" style="text-decoration:none; display:inline-block;">[ JOIN WAITLIST ]</a>
+  <a href="#contact" class="engage waitlist-cta" data-launch-text="[ APPLY NOW ]" style="text-decoration:none; display:inline-block;">Join Waitlist</a>
 </div>
 
 <!-- 02 HERO
@@ -136,7 +136,7 @@
     </h1>
     <p class="hero-sub">Performance over aesthetics. A real coach builds your plan — no AI, no template.</p>
     <div class="cta-row">
-      <button class="bracket-btn waitlist-cta" data-launch-text="[ ENGAGE: START NOW ]">[ ENGAGE: JOIN WAITLIST ]</button>
+      <button class="bracket-btn waitlist-cta" data-launch-text="[ ENGAGE: START NOW ]">Join Waitlist</button>
       <p class="hero-price">From <span class="price-orange">$89</span> one-time — no subscription. <a href="#programmes">See programmes →</a></p>
       <p class="hero-price" style="margin-top:6px;">Waitlist capped at <span class="price-orange spots-count">100</span> spots.</p>
     </div>
@@ -152,43 +152,41 @@
      submit anywhere (no backend wired up) — connect it to an email
      service (Mailchimp, ConvertKit, etc.) before this goes live. -->
 <section class="strip">
-  <div>
-    <img src="images/logo-black.png" alt="PRFM" class="strip-mark">
-    <h2>Achieve your goal.</h2>
-    <p class="mono" style="font-size:11px; letter-spacing:0.04em; margin-top:8px; color:rgba(17,17,17,0.7);">100 waitlist spots · free "PRFM Method" PDF on signup</p>
+  <h2>Achieve your goal.</h2>
+  <p class="strip-sub">100 waitlist spots · free "PRFM Method" PDF on signup</p>
+  <div class="strip-form">
+    <input class="input" type="email" placeholder="you@email.com">
+    <button class="btn-black waitlist-cta" data-launch-text="[ APPLY NOW ]">Send me the guide</button>
   </div>
-  <form class="strip-form" action="YOUR_FORM_ENDPOINT_HERE" method="POST" name="waitlist-strip">
-    <!-- BACKEND: replace action URL with your email service endpoint (e.g. Mailchimp, ConvertKit, Formspree) -->
-    <!-- For Formspree (quickest): create form at formspree.io, replace action with "https://formspree.io/f/YOUR_ID" -->
-    <input type="hidden" name="_subject" value="PRFM Waitlist Signup">
-    <input class="input" type="email" name="email" placeholder="you@email.com" required>
-    <button type="submit" class="btn-black waitlist-cta" data-launch-text="[ APPLY NOW ]">[ SEND GUIDE ]</button>
-  </form>
 </section>
 
 <!-- 04 PHILOSOPHY -->
 <section class="on-cream pad" id="philosophy">
-  <div class="eyebrow reveal">// THE PRFM PHILOSOPHY</div>
-  <h2 class="h2 reveal" style="margin-top:16px; max-width:780px;">You have a performance in mind. These plans are how you get there.</h2>
-  <p class="body-text philosophy-body reveal">Athletes don't exercise. They train — toward something specific. PRFM works the same way: the goal comes first, the programme is how we reach it. Every session, every check-in, every adjustment exists to get you to your performance. Aesthetic results follow. They're not the brief.</p>
+  <div class="philosophy-header reveal-group">
+    <div class="reveal" style="--i:0">
+      <div class="eyebrow">// THE PRFM PHILOSOPHY</div>
+      <h2 class="h2" style="margin-top:16px;">You have a performance in mind.<br>These plans are how you get there.</h2>
+    </div>
+    <p class="body-text philosophy-body reveal" style="--i:1">Athletes don't exercise. They train — toward something specific. PRFM works the same way: the goal comes first, the programme is how we reach it. Every session, every check-in, every adjustment exists to get you to your performance. Aesthetic results follow. They're not the brief.</p>
+  </div>
   <div class="pillars reveal-group">
     <div class="pillar reveal" style="--i:0">
-      <span class="tag-pill">[ GOAL_FIRST ]</span>
+      <div class="pillar-title">Goal First</div>
       <p>Your goal anchors everything. The programme, the timeline, the check-ins — all of it works backward from where you're trying to get to.</p>
     </div>
     <div class="pillar reveal" style="--i:1">
-      <span class="tag-pill">[ BUILT_BY_HAND ]</span>
+      <div class="pillar-title">Built by Hand</div>
       <p>Every plan is written by hand, personally. No AI, no templates, no recycled blocks. If it's in your programme, it's there for you.</p>
     </div>
     <div class="pillar reveal" style="--i:2">
-      <span class="tag-pill">[ EVOLVES_WITH_YOU ]</span>
-      <p>Your plan isn't fixed. As you progress, it changes — Ben watches and adjusts so the work always matches where you actually are.</p>
+      <div class="pillar-title">Evolves With You</div>
+      <p>Your plan isn't fixed. As you progress, it changes — adjustments are made so the work always matches where you actually are.</p>
     </div>
   </div>
 </section>
 
 <!-- 05 HOW IT WORKS -->
-<section class="pad grid-bg">
+<section class="pad grid-bg" style="text-align:center;">
   <div class="eyebrow reveal">// HOW IT WORKS</div>
   <h2 class="h2 reveal" style="margin-top:16px;">Five steps. No guesswork.</h2>
   <div class="steps reveal-group">
@@ -205,87 +203,116 @@
      the card-grid layout (row 1: five equal tiers · row 2: Pro + Custom)
      before editing. -->
 <section class="on-cream pad" id="programmes">
-  <div class="eyebrow reveal">// CHOOSE YOUR PROGRAMME</div>
-  <h2 class="h2 reveal" style="margin-top:16px;">Seven programmes. One progression.</h2>
-  <p class="body-text reveal" style="max-width:600px; margin-top:14px; color:var(--gray-on-cream);">Start with a one-time block, move into a monthly plan built around your goal, or go all-in with Ben personally. Every tier stacks toward the next.</p>
+  <div class="eyebrow reveal" style="text-align:center;">// CHOOSE YOUR PROGRAMME</div>
+  <h2 class="h2 reveal" style="margin-top:16px; text-align:center;">Seven programmes. One progression.</h2>
+  <p class="body-text reveal" style="max-width:600px; margin:14px auto 0; text-align:center; color:var(--gray-on-cream);">Start with a one-time block, move into a monthly plan built around your goal, or go all-in with Ben personally. Every tier stacks toward the next.</p>
 
-  <div class="prog-grid reveal-group">
-    <div class="prog-card dark card-base reveal" style="--i:0">
-      <div class="card-ribbon">START HERE</div>
-      <div class="card-kicker">ENTRY</div>
-      <div class="card-num">01</div>
-      <div class="card-name">Base</div>
-      <div class="card-detail">4 weeks · 3 sessions/week — foundation building</div>
-      <div class="card-price">$89<span class="price-week">one-time</span></div>
-      <button class="bracket-btn waitlist-cta" data-launch-text="[ START NOW ]">[ JOIN WAITLIST ]</button>
-    </div>
-    <div class="prog-card dark card-build reveal" style="--i:1">
-      <div class="card-kicker">ENTRY</div>
-      <div class="card-num">02</div>
-      <div class="card-name">Build</div>
-      <div class="card-detail">4 weeks · 4 sessions/week — conditioning, strength or muscle focus</div>
-      <div class="card-price">$89<span class="price-week">one-time</span></div>
-      <button class="bracket-btn waitlist-cta" data-launch-text="[ START NOW ]">[ JOIN WAITLIST ]</button>
-    </div>
-    <div class="prog-card outline card-strong reveal" style="--i:2">
-      <div class="card-kicker">PICK YOUR GOAL</div>
-      <div class="card-num">03</div>
-      <div class="card-name">Strong</div>
-      <div class="card-detail">Barbell strength &amp; bodyweight mastery</div>
-      <div class="card-price">$149<span class="price-week">/mo · $35/wk</span></div>
-      <button class="ghost-btn waitlist-cta" data-launch-text="[ APPLY NOW ]">[ JOIN WAITLIST ]</button>
-    </div>
-    <div class="prog-card outline card-capacity reveal" style="--i:3">
-      <div class="card-kicker">PICK YOUR GOAL</div>
-      <div class="card-num">04</div>
-      <div class="card-name">Capacity</div>
-      <div class="card-detail">Aerobic capacity &amp; endurance — crush any endurance event</div>
-      <div class="card-price">$149<span class="price-week">/mo · $35/wk</span></div>
-      <button class="ghost-btn waitlist-cta" data-launch-text="[ APPLY NOW ]">[ JOIN WAITLIST ]</button>
-    </div>
-    <div class="prog-card outline card-prime reveal" style="--i:4">
-      <div class="card-kicker">PICK YOUR GOAL</div>
-      <div class="card-num">05</div>
-      <div class="card-name">Prime</div>
-      <div class="card-detail">Full body S&amp;C — the most well-rounded athlete programme</div>
-      <div class="card-price">$149<span class="price-week">/mo · $35/wk</span></div>
-      <button class="ghost-btn waitlist-cta" data-launch-text="[ APPLY NOW ]">[ JOIN WAITLIST ]</button>
-    </div>
+  <div class="prog-tiers reveal-group">
 
-    <div class="prog-card pro reveal" style="--i:5">
-      <div class="card-ribbon wide">RECOMMENDED</div>
-      <div class="pro-copy">
-        <div class="card-kicker">ALL-ACCESS</div>
-        <div class="card-num">06</div>
-        <div class="card-name">Pro</div>
-        <div class="card-detail">Full access to Strong, Capacity AND Prime — train all three, switch anytime. All three for $70/mo more than one alone.</div>
-      </div>
-      <div class="pro-order">
-        <div class="card-price">$219<span class="price-week">/mo · $55/wk</span></div>
-        <button class="bracket-btn waitlist-cta" data-launch-text="[ APPLY NOW ]">[ JOIN WAITLIST ]</button>
+    <!-- TIER 1: Entry — dashed border enclosure, 2-column grid -->
+    <div class="prog-tier-group reveal" style="--i:0">
+      <span class="prog-tier-label">// ENTRY — ONE TIME</span>
+      <div class="tier-entry-grid">
+        <div class="prog-card dark">
+          <div class="card-ribbon">START HERE</div>
+          <div class="card-kicker">ENTRY</div>
+          <div class="card-num">01</div>
+          <div class="card-name">Base</div>
+          <div class="card-detail">4 weeks · 3 sessions/week — foundation building</div>
+          <div class="card-price">$89<span class="price-week">one-time</span></div>
+          <button class="bracket-btn waitlist-cta" data-launch-text="[ START NOW ]">Join Waitlist</button>
+        </div>
+        <div class="prog-card dark">
+          <div class="card-kicker">ENTRY</div>
+          <div class="card-num">02</div>
+          <div class="card-name">Build</div>
+          <div class="card-detail">4 weeks · 4 sessions/week — conditioning, strength or muscle focus</div>
+          <div class="card-price">$89<span class="price-week">one-time</span></div>
+          <button class="bracket-btn waitlist-cta" data-launch-text="[ START NOW ]">Join Waitlist</button>
+        </div>
       </div>
     </div>
-    <div class="prog-card dark card-custom reveal" style="--i:6">
-      <div class="card-kicker">PRIVATE · 10 MAX</div>
-      <div class="card-num">07</div>
-      <div class="card-name">Custom</div>
-      <div class="card-detail">Fully bespoke plan · personalised nutrition &amp; lifestyle guide · full access to Ben</div>
-      <div class="card-price">$529<span class="price-week">/mo · $125/wk</span></div>
-      <button class="bracket-btn waitlist-cta" data-launch-text="[ APPLY NOW ]">[ JOIN WAITLIST ]</button>
+
+    <!-- TIER 2: Pick your goal — dashed border enclosure, 3-column grid -->
+    <div class="prog-tier-group reveal" style="--i:1">
+      <span class="prog-tier-label">// PICK YOUR GOAL — $149/MO</span>
+      <div class="tier-goals-grid">
+        <div class="prog-card outline">
+          <div class="card-kicker">PICK YOUR GOAL</div>
+          <div class="card-num">03</div>
+          <div class="card-name">Strong</div>
+          <div class="card-detail">Barbell strength &amp; bodyweight mastery</div>
+          <div class="card-price">$149<span class="price-week">/mo · $35/wk</span></div>
+          <button class="ghost-btn waitlist-cta" data-launch-text="[ APPLY NOW ]">Join Waitlist</button>
+        </div>
+        <div class="prog-card outline">
+          <div class="card-kicker">PICK YOUR GOAL</div>
+          <div class="card-num">04</div>
+          <div class="card-name">Capacity</div>
+          <div class="card-detail">Aerobic capacity &amp; endurance — crush any endurance event</div>
+          <div class="card-price">$149<span class="price-week">/mo · $35/wk</span></div>
+          <button class="ghost-btn waitlist-cta" data-launch-text="[ APPLY NOW ]">Join Waitlist</button>
+        </div>
+        <div class="prog-card outline">
+          <div class="card-kicker">PICK YOUR GOAL</div>
+          <div class="card-num">05</div>
+          <div class="card-name">Prime</div>
+          <div class="card-detail">Full body S&amp;C — the most well-rounded athlete programme</div>
+          <div class="card-price">$149<span class="price-week">/mo · $35/wk</span></div>
+          <button class="ghost-btn waitlist-cta" data-launch-text="[ APPLY NOW ]">Join Waitlist</button>
+        </div>
+      </div>
     </div>
+
+    <!-- TIER 3: All-access + Private — no dashed wrapper; Pro's solid border is the signal -->
+    <div class="prog-tier-group tier-access reveal" style="--i:2">
+      <div class="tier-access-grid">
+        <div class="prog-card pro">
+          <div class="card-ribbon wide">RECOMMENDED</div>
+          <div class="pro-copy">
+            <div class="card-kicker">ALL-ACCESS</div>
+            <div class="card-num">06</div>
+            <div class="card-name">Pro</div>
+            <div class="card-detail">Full access to Strong, Capacity AND Prime — train all three, switch anytime.</div>
+            <div class="pro-value">Strong + Capacity + Prime — $70/mo less than buying all three</div>
+          </div>
+          <div class="pro-order">
+            <div class="card-price">$219<span class="price-week">/mo · $55/wk</span></div>
+            <button class="bracket-btn waitlist-cta" data-launch-text="[ APPLY NOW ]">Join Waitlist</button>
+          </div>
+        </div>
+        <div class="prog-card dark">
+          <div class="card-kicker">PRIVATE · 10 MAX</div>
+          <div class="card-num">07</div>
+          <div class="card-name">Custom</div>
+          <div class="card-detail">Fully bespoke plan · personalised nutrition &amp; lifestyle guide · full access to Ben</div>
+          <div class="card-price">$529<span class="price-week">/mo · $125/wk</span></div>
+          <button class="bracket-btn waitlist-cta" data-launch-text="[ APPLY NOW ]">Join Waitlist</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <div class="progress-path reveal">
-    <span class="node">BASE</span> → <span class="node">BUILD</span> → <span class="node">STRONG / CAPACITY / PRIME</span> → <span class="node">PRO</span> → <span class="node">CUSTOM</span>
+    <span class="node">Base</span>
+    <span class="arrow">→</span>
+    <span class="node">Build</span>
+    <span class="arrow">→</span>
+    <span class="node">Strong / Capacity / Prime</span>
+    <span class="arrow">→</span>
+    <span class="node">Pro</span>
+    <span class="arrow">→</span>
+    <span class="node">Custom</span>
   </div>
 </section>
 
 <!-- 07 GUARANTEE -->
-<section class="strip" style="flex-direction:column; align-items:flex-start; gap:14px;">
-  <img src="images/logo-black.png" alt="PRFM" class="strip-mark" style="margin-bottom:0;">
+<section class="strip" style="gap:16px;">
+  <img src="images/logo-black.png" alt="PRFM" class="strip-mark">
   <span class="tag-pill" style="color:var(--black); border-color:var(--black);">[ THE GUARANTEE ]</span>
   <h2 style="font-weight:900; font-size:clamp(22px,3vw,34px); text-transform:uppercase; max-width:680px;">It's not send-and-forget. It's coached.</h2>
-  <p style="max-width:600px; font-size:14px; line-height:1.6;">We don't hand you a plan and disappear. We build it personally, after talking to you — and we're the ones watching how you respond to it, not an app guessing on your behalf.</p>
+  <p style="max-width:560px; font-size:14px; line-height:1.6;">We don't hand you a plan and disappear. We build it personally, after talking to you — and we're the ones watching how you respond to it, not an app guessing on your behalf.</p>
 </section>
 
 <!-- 08 COACH BEN — now uses a real photo of Ben competing (Ben_-_Lunge_event_DCF__7_.png).
@@ -315,10 +342,6 @@
 </section>
 
 <!-- 09 TESTIMONIALS / FIELD REPORTS -->
-<!-- REAL CLIENT TESTIMONIALS — supplied by Ben. Each .quote-photo img src points to the
-     client's actual photo. Dates are when the review was given. As new reviews come in
-     under current programme names, swap the journey line for a real "Base → Pro · N months" path.
-     To add a review: copy one .quote block and paste it after the last one. -->
 <section class="pad">
   <div class="eyebrow reveal">// FIELD REPORTS</div>
   <h2 class="h2 reveal" style="margin-top:16px;">What changes when you train with a purpose.</h2>
@@ -326,9 +349,7 @@
 
     <div class="quote reveal" style="--i:0">
       <div class="quote-card">
-        <div class="quote-photo">
-          <img src="images/testimonial-josh.png" alt="Josh P. — NZ CrossFit Champs">
-        </div>
+        <div class="quote-photo"><img src="images/testimonial-josh.png" alt="Josh P."></div>
         <div class="quote-content">
           <div class="stars">★★★★★</div>
           <blockquote>"After a year with Ben and the PRFM method, I went from not even qualifying to winning NZ CrossFit Champs. His depth of knowledge in functional movement is next level."</blockquote>
@@ -342,9 +363,7 @@
 
     <div class="quote reveal" style="--i:1">
       <div class="quote-card">
-        <div class="quote-photo">
-          <img src="images/testimonial-sara.png" alt="Sara — PRFM client since 2019">
-        </div>
+        <div class="quote-photo"><img src="images/testimonial-sara.png" alt="Sara"></div>
         <div class="quote-content">
           <div class="stars">★★★★★</div>
           <blockquote>"I've been training with Coach Ben since 2019. His programs are challenging but genuinely fun — my results have been unreal and I'm in love with fitness again."</blockquote>
@@ -358,9 +377,7 @@
 
     <div class="quote reveal" style="--i:2">
       <div class="quote-card">
-        <div class="quote-photo">
-          <img src="images/testimonial-liam.png" alt="Liam F. — Commonwealth Games silver medallist">
-        </div>
+        <div class="quote-photo"><img src="images/testimonial-liam.png" alt="Liam F."></div>
         <div class="quote-content">
           <div class="stars">★★★★★</div>
           <blockquote>"The workouts are easily scalable to my level of fitness. I especially love how there are options to work around my old injuries."</blockquote>
@@ -382,22 +399,68 @@
   <div class="attr reveal">BEN THOMPSON — FOUNDER, PRFM</div>
 </section>
 
+<!-- BLOG SECTION — soft carousel. Center card is active/featured, adjacent cards are visible but faded.
+     Arrow buttons and dot indicators let visitors step through. Drag/swipe also works on touch.
+     To add a real post: add a new .blog-card div to #blog-track. The JS handles the rest.
+     To remove "coming soon": delete the .blog-soon span and update .blog-meta to a real date. -->
+<section class="blog-section">
+  <div class="eyebrow reveal" style="text-align:center;">// THE PRFM METHOD — BLOG</div>
+  <h2 class="h2 reveal" style="margin-top:16px; text-align:center;">Training intelligence. Coming soon.</h2>
+  <div class="blog-track-wrap reveal" id="blog-wrap">
+    <div class="blog-track" id="blog-track">
+      <div class="blog-card">
+        <div class="blog-tag">// MINDSET</div>
+        <div class="blog-title">Why athletes think differently about rest days</div>
+        <div class="blog-meta">COMING SOON</div>
+        <span class="blog-soon">[ NOTIFY ME ]</span>
+      </div>
+      <div class="blog-card">
+        <div class="blog-tag">// TRAINING</div>
+        <div class="blog-title">Why most programmes fail before week three</div>
+        <div class="blog-meta">COMING SOON</div>
+        <span class="blog-soon">[ NOTIFY ME ]</span>
+      </div>
+      <div class="blog-card">
+        <div class="blog-tag">// PRFM METHOD</div>
+        <div class="blog-title">What it actually means to train toward a goal — not just for one</div>
+        <div class="blog-meta">FIRST POST · COMING SOON</div>
+        <span class="blog-soon">[ NOTIFY ME ]</span>
+      </div>
+      <div class="blog-card">
+        <div class="blog-tag">// PERFORMANCE</div>
+        <div class="blog-title">The difference between conditioning and fitness — and why it matters</div>
+        <div class="blog-meta">COMING SOON</div>
+        <span class="blog-soon">[ NOTIFY ME ]</span>
+      </div>
+      <div class="blog-card">
+        <div class="blog-tag">// COACHING</div>
+        <div class="blog-title">What a good coach actually does between sessions</div>
+        <div class="blog-meta">COMING SOON</div>
+        <span class="blog-soon">[ NOTIFY ME ]</span>
+      </div>
+    </div>
+  </div>
+  <div class="blog-nav">
+    <button id="blog-prev" aria-label="Previous post">&#8592;</button>
+    <button id="blog-next" aria-label="Next post">&#8594;</button>
+  </div>
+  <div class="blog-dots" id="blog-dots"></div>
+</section>
+
 <!-- 11 FINAL CTA — same as the section 03 form, this email input doesn't
      submit anywhere yet (no backend connected). Wire both up to the same
      email service before launch. -->
-<section class="pad grid-bg" id="contact">
-  <img src="images/logo-white.png" alt="PRFM" class="final-mark reveal">
+<section class="pad grid-bg" id="contact" style="text-align:center; display:flex; flex-direction:column; align-items:center;">
+  <img src="images/logo-white.png" alt="PRFM" class="final-mark reveal" style="margin:0 auto 20px;">
   <!-- MANUAL UPDATE: edit the number in .spots-count as waitlist fills. Currently a static placeholder. -->
   <span class="tag-pill reveal" style="color:var(--orange); border-color:var(--orange);">[ <span class="spots-count">100</span> SPOTS ONLY — WAITLIST ]</span>
   <h2 class="final-headline reveal">Achieve your goal. Start here.</h2>
-  <p class="final-sub reveal">Free guide. Free consultation call. No commitment until you're ready.</p>
-  <form class="final-form reveal" action="YOUR_FORM_ENDPOINT_HERE" method="POST" name="waitlist-cta">
-    <!-- BACKEND: use the same endpoint as the strip form above -->
-    <input type="hidden" name="_subject" value="PRFM Waitlist Signup">
-    <input class="input" type="email" name="email" placeholder="you@email.com" required>
-    <button type="submit" class="bracket-btn waitlist-cta" data-launch-text="[ APPLY NOW ]">[ SEND ME THE GUIDE ]</button>
-  </form>
-  <p class="fine-print">By submitting you'll receive "The PRFM Method" — our free guide — plus occasional emails about your spot. Only <span class="spots-count">100</span> waitlist spots available before launch.</p>
+  <p class="final-sub reveal" style="margin-left:auto; margin-right:auto;">Free guide. Free consultation call. No commitment until you're ready.</p>
+  <div class="final-form reveal">
+    <input class="input" type="email" placeholder="you@email.com">
+    <button class="bracket-btn waitlist-cta" data-launch-text="[ APPLY NOW ]">Send me the guide</button>
+  </div>
+  <p class="fine-print" style="margin-left:auto; margin-right:auto;">By submitting you'll receive "The PRFM Method" — our free guide — plus occasional emails about your spot. Only <span class="spots-count">100</span> waitlist spots available before launch.</p>
 </section>
 
 <footer>
