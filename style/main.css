@@ -144,7 +144,7 @@
   .strip.guarantee{position:relative; padding:64px 56px;}
   .guarantee-mark{position:absolute; top:28px; left:32px; height:18px; display:block;}
   .guarantee-header{display:grid; grid-template-columns:1.1fr 0.9fr; gap:38px; align-items:start; max-width:980px; width:100%; margin:0 auto;}
-  .guarantee-sub{margin-top:16px; font-size:14px; line-height:1.6; color:rgba(17,17,17,0.75);}
+  .guarantee-sub{margin-top:6px; font-size:14px; line-height:1.6; color:rgba(17,17,17,0.75);}
   .btn-black{background:var(--black); color:var(--white); border:none; font-weight:500; font-family:'IBM Plex Mono',monospace; font-size:12px; padding:13px 22px; cursor:pointer; white-space:nowrap; border-radius:6px;}
   .btn-black:hover{filter:brightness(1.3);}
 
